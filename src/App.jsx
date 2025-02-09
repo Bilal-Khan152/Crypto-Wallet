@@ -1,59 +1,30 @@
-import React, { useState } from "react";
-import {
-  Container,
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Switch,
-  TextField,
-  Box,
-} from "@mui/material";
-import { generateMnemonic } from "bip39";
-import { mnemonicToSeed } from "bip39"; // Import mnemonicToSeed
+import { useState } from "react";
+import "./App.css";
+import { generateMnemonic, mnemonicToSeed } from "bip39";
 import { derivePath } from "ed25519-hd-key";
-import { Keypair, Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Wallet, HDNodeWallet } from "ethers";
 
 function App() {
   const [mnemonic, setMnemonic] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
 
   return (
-    <Container maxWidth="md" className={isDarkMode ? "dark" : "light"}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            CryptX
-          </Typography>
-          <Switch checked={isDarkMode} onChange={toggleDarkMode} />
-        </Toolbar>
-      </AppBar>
-      <Box sx={{ mt: 2 }}>
-        <Button
-          variant="contained"
-          onClick={() => setMnemonic(generateMnemonic())}
-        >
-          Create Seed Phrase
-        </Button>
-        <TextField
-          fullWidth
-          variant="outlined"
-          value={mnemonic}
-          margin="normal"
-          InputProps={{
-            readOnly: true,
-          }}
-        />
-        <SolanaWallet mnemonic={mnemonic} />
-        <EthWallet mnemonic={mnemonic} />
-      </Box>
-    </Container>
+    <div>
+      <button
+        onClick={() => {
+          const mn = generateMnemonic(); // No need for await
+          setMnemonic(mn);
+        }}
+      >
+        Create Seed Phrase
+      </button>
+      <input type="text" value={mnemonic} readOnly></input>
+
+      {/* Pass mnemonic as a prop */}
+      <SolanaWallet mnemonic={mnemonic} />
+      <EthWallet mnemonic={mnemonic} />
+    </div>
   );
 }
 
@@ -76,35 +47,37 @@ export function SolanaWallet({ mnemonic }) {
     }
   };
 
-  const addSolanaWallet = async () => {
-    const seed = await mnemonicToSeed(mnemonic);
-    const path = `m/44'/501'/${currentIndex}'/0'`;
-    const derivedSeed = derivePath(path, seed.toString("hex")).key;
-    const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
-    const keypair = Keypair.fromSecretKey(secret);
-    const publicKey = keypair.publicKey.toBase58();
-    setPublicKeys([...publicKeys, publicKey]);
-    const balance = await fetchBalance(publicKey);
-    setBalances([...balances, balance]);
-    setCurrentIndex(currentIndex + 1);
-  };
-
   return (
-    <Box sx={{ mt: 2 }}>
-      <Button variant="outlined" onClick={addSolanaWallet}>
-        Add Sol wallet
-      </Button>
-      {publicKeys.map((key, index) => (
-        <Typography key={index}>
-          Sol - {key}{" "}
-          <span>
-            Balance:{" "}
+    <div>
+      <button
+        onClick={async function () {
+          if (!mnemonic) return; // Ensure mnemonic exists
+
+          const seed = await mnemonicToSeed(mnemonic);
+          const path = `m/44'/501'/${currentIndex}'/0'`;
+          const derivedSeed = derivePath(path, seed.toString("hex")).key;
+
+          const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
+          const keypair = Keypair.fromSecretKey(new Uint8Array(secret));
+          setCurrentIndex(currentIndex + 1);
+          setPublicKeys([...publicKeys, keypair.publicKey.toBase58()]); // Convert to string
+          setBalances(fetchBalance());
+        }}
+      >
+        Add Sol Wallet
+      </button>
+
+      <h3>Solana Public Keys:</h3>
+      <ul>
+        {publicKeys.map((key, index) => (
+          <li key={index}>
+            {key} Balance:{" "}
             {balances[index] !== undefined ? balances[index].toFixed(2) : 0.0}{" "}
             SOL
-          </span>
-        </Typography>
-      ))}
-    </Box>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -126,36 +99,37 @@ export const EthWallet = ({ mnemonic }) => {
     }
   };
 
-  const addEthWallet = async () => {
-    const seed = await mnemonicToSeed(mnemonic);
-    const derivationPath = ` m/44'/60'/${currentIndex}'/0'`;
-    const hdNode = HDNodeWallet.fromSeed(seed);
-    const child = hdNode.derivePath(derivationPath);
-    const privateKey = child.privateKey;
-    const wallet = new Wallet(privateKey);
-    const address = wallet.address;
-    setAddresses([...addresses, address]);
-    const balance = await fetchBalance(address);
-    setBalances([...balances, balance]);
-    setCurrentIndex(currentIndex + 1);
-  };
-
   return (
-    <Box sx={{ mt: 2 }}>
-      <Button variant="outlined" onClick={addEthWallet}>
-        Add ETH wallet
-      </Button>
-      {addresses.map((address, index) => (
-        <Typography key={index}>
-          Eth - {address}{" "}
-          <span>
-            Balance:{" "}
+    <div>
+      <button
+        onClick={async function () {
+          if (!mnemonic) return; // Ensure mnemonic exists
+
+          const seed = await mnemonicToSeed(mnemonic);
+          const derivationPath = `m/44'/60'/${currentIndex}'/0'`;
+
+          const hdNode = HDNodeWallet.fromSeed(seed);
+          const child = hdNode.derivePath(derivationPath);
+          const wallet = new Wallet(child.privateKey);
+          setBalances(fetchBalance());
+          setCurrentIndex(currentIndex + 1);
+          setAddresses([...addresses, wallet.address]);
+        }}
+      >
+        Add ETH Wallet
+      </button>
+
+      <h3>Ethereum Addresses:</h3>
+      <ul>
+        {addresses.map((p, index) => (
+          <li key={index}>
+            {p} Balance:{" "}
             {balances[index] !== undefined ? balances[index].toFixed(2) : 0.0}{" "}
-            ETH
-          </span>
-        </Typography>
-      ))}
-    </Box>
+            Eth
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
