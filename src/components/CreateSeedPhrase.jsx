@@ -86,7 +86,7 @@ function CreateSeedPhrase({darkTheme }) {
         {/* Pass mnemonic as a prop */}
       </div>
 
-      <div className="flex">
+      <div className="flex md:flex-row flex-col">
         <SolanaWallet mnemonic={mnemonic} darkTheme={darkTheme}  />
         <EthWallet mnemonic={mnemonic} darkTheme={darkTheme} />
       </div>

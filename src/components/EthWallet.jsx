@@ -41,8 +41,8 @@ function EthWallet({ mnemonic, darkTheme }) {
     <div
       className={
         darkTheme
-          ? " w-[50vw] bg-[#dfe6e9] py-12 h-[80vh]  "
-          : " w-[50vw] bg-[#34495e] py-12 h-[80vh]  "
+          ? " md:w-[50vw] w-full bg-[#dfe6e9] py-12 h-[80vh] flex flex-col justify-center items-center "
+          : " md:w-[50vw] w-full bg-[#34495e] py-12 h-[80vh]  flex flex-col justify-center items-center"
       }
     >
       <p
@@ -52,14 +52,14 @@ function EthWallet({ mnemonic, darkTheme }) {
             : "text-3xl text-[#ecf0f1] italic text-center"
         }
       >
-        Solana Wallet
+        Ehtereum Wallet
       </p>
 
       <div
         className={
           darkTheme
-            ? "w-[45vw] h-[45vh] mt-3 border-[1px] rounded bg-[#dfe6e9]   mx-auto overflow-auto"
-            : "w-[45vw] h-[45vh] mt-3 border-[1px] rounded bg-[#2c3e50]   mx-auto overflow-auto"
+            ? "md:w-[45vw] w-[90vw] h-[45vh] mt-3 border-[1px] rounded bg-[#dfe6e9]   mx-auto overflow-auto"
+            : "md:w-[45vw] w-[90vw] h-[45vh] mt-3 border-[1px] rounded bg-[#2c3e50]   mx-auto overflow-auto"
         }
       >
         <div>
@@ -80,8 +80,8 @@ function EthWallet({ mnemonic, darkTheme }) {
                   <li
                     className={
                       darkTheme
-                        ? "text-[#636e72] mt-2 flex justify-center   items-center "
-                        : "text-[#ffeaa7] mt-2 flex justify-center   items-center "
+                        ? "text-[#636e72] md:text-sm text-[11px] mt-2 flex md:flex-row flex-col justify-center   items-center "
+                        : "text-[#ffeaa7] md:text-sm text-[11px] mt-2 flex md:flex-row flex-col justify-center   items-center "
                     }
                     key={index}
                   >
@@ -103,7 +103,7 @@ function EthWallet({ mnemonic, darkTheme }) {
       </div>
       <button
         onClick={handleOnClick}
-        className="bg-slate-950 text-slate-400 border border-slate-400 border-b-4 font-medium overflow-hidden relative text-xl px-6 py-1.5 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group ml-[270px]  mt-3.5  cursor-pointer"
+        className="bg-slate-950 text-slate-400 border border-slate-400 border-b-4 font-medium overflow-hidden relative text-xl px-6 py-1.5 rounded-md hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group   mt-3.5  cursor-pointer"
       >
         <span className="bg-slate-400 shadow-slate-400  absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
         Generate
